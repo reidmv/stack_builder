@@ -274,7 +274,7 @@ class Puppet::Stack
         # each of these can be done in parallel
         # except can our puppetmaster service simultaneous requests?
         node.each do |name, attrs|
-          if ['pe_master', 'master', 'agent', 'apply'].include?(mode)
+          if ['pe_master', 'master', 'pe_agent', 'agent', 'apply'].include?(mode)
             run_type = 'install'
           elsif mode == 'test'
             run_type = 'test'
