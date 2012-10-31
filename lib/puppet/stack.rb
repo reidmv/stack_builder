@@ -402,4 +402,25 @@ class Puppet::Stack
     @queue ||= Queue.new
   end
 
+  def self.heredoc_safe(string)
+    # lifted from shellquote function on 2012/10/22
+    safe = '!"a-zA-Z0-9@%_+=:,./-' # Safe unescaped
+    dangerous = '`$\\'             # Unsafe without escape
+
+    if string.length != 0 and string.count(safe) == string.length
+      return string
+    elsif string.count(dangerous) == 0
+      return ('"' + string + '"')
+    elsif string.count("'") == 0
+      return ("'" + string + "'")
+    else
+      r = String.new
+      string.each_byte do |c|
+        r += "\\" if dangerous.include?(c)
+        r += c.chr
+      end
+      return r
+    end
+  end
+
 end
