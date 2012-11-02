@@ -365,7 +365,16 @@ class Puppet::Stack
            Puppet.info("Building instance #{name}")
             # TODO I may want to capture more data when nodes
             # are created
-            hostname = create_instance(attrs['create']['options'])
+            provisioner = attrs['provisioner'] || :node_aws
+            provisioned = create_instance(attrs['create']['options'], provisioner)
+
+            hostname = case provisioner.to_sym
+            when :node_vmware
+              provisioned['ipaddress']
+            else
+              provisioned
+            end
+
             Puppet.info("Adding instance #{hostname} to queue.")
             queue.push({name => {'hostname' => hostname, 'region' => attrs['create']['options']['region']}})
           end
@@ -394,7 +403,7 @@ class Puppet::Stack
 
   def self.create_instance(options, create_type = :node_aws)
     Puppet.debug("Calling puppet #{create_type} create with #{options.inspect}")
-    Puppet::Face[create_type, :current].create(options)
+    Puppet::Face[create_type.to_sym, :current].create(options)
   end
 
   # retrieve the queue instance
