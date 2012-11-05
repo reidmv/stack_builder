@@ -39,8 +39,10 @@ class Puppet::Stack
 
 
   def self.create(options, nodes)
-    stack_file = File.join(get_stack_path, options[:name])
+    stack_path = get_stack_path
+    stack_file = File.join(stack_path, options[:name])
     begin
+      FileUtils.mkdir_p(stack_path) unless File.exists?(stack_path)
       file = File.new(stack_file, File::CREAT|File::EXCL)
     rescue Errno::EEXIST => ex
       raise(Puppet::Error, <<-EOL.gsub(/\s+/, " ").strip)
