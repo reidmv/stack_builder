@@ -56,6 +56,7 @@ class Puppet::Stack
     created_nodes = {'config' => File.expand_path(options[:config])}
     created_nodes['master'] = create_instances([nodes['master']])
     created_nodes['nodes']  = create_instances(nodes['nodes'])
+    created_nodes['created'] = Time.now
 
     # install all nodes that need to be installed
     save(stack_file, created_nodes)
