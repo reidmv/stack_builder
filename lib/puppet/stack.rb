@@ -24,7 +24,7 @@ class Puppet::Stack
   def self.configure_logging
     # TODO I do not want to be setting up logging here
     # I need to figure out the correct way to just let faces do this
-    Puppet::Util::Log.level = :debug
+    #Puppet::Util::Log.level = :debug
     Puppet::Util::Log.newdestination(:console)
   end
 
@@ -43,7 +43,10 @@ class Puppet::Stack
     begin
       file = File.new(stack_file, File::CREAT|File::EXCL)
     rescue Errno::EEXIST => ex
-      raise(Puppet::Error, "Cannot create stack :#{options[:name]}, stackfile #{stack_file} already exists. Stack names supplied via --name must be unique")
+      raise(Puppet::Error, <<-EOL.gsub(/\s+/, " ").strip)
+        Cannot create stack :#{options[:name]}, stackfile #{stack_file}
+        already exists. Stack names supplied via --name must be unique
+      EOL
     ensure
       file.close if file
     end
@@ -70,18 +73,18 @@ class Puppet::Stack
 
     # install all of the nodes
     installed_master = install_instances(
-                         [nodes['master']],
-                         created_nodes['master'],
-                         # master type determines the script
-                         # that we will use to install the master
-                         nodes['master'].values[0]['master_type'] || 'master'
-                       )
-    installed_instances = nodes['nodes'] == {} ? nil :  install_instances(
-                                                          nodes['nodes'],
-                                                          created_nodes['nodes'],
-                                                          nodes['puppet_run_type'],
-                                                          puppetmaster_hostname
-                                                        )
+      [nodes['master']],
+      created_nodes['master'],
+      # master type determines the script
+      # that we will use to install the master
+      nodes['master'].values[0]['master_type'] || 'master'
+    )
+    installed_instances = nodes['nodes'] == {} ? nil : install_instances(
+      nodes['nodes'],
+      created_nodes['nodes'],
+      nodes['puppet_run_type'],
+      puppetmaster_hostname
+    )
   end
 
   def self.test(options, nodes, created_nodes)
@@ -92,7 +95,11 @@ class Puppet::Stack
     destroyed_dir = File.join(get_stack_path, 'destroyed')
     FileUtils.mkdir(destroyed_dir) unless File.directory?(destroyed_dir)
     stack_file = File.join(get_stack_path, options[:name])
-    raise(Puppet::Error, "Stackfile for stack to destroy #{stack_file} does not exists. Stack names supplied via --name must have corresponding stack file to be destroyed") unless File.exists?(stack_file)
+    raise(Puppet::Error, <<-EOL.gsub(/\s+/, " ").strip) unless File.exists?(stack_file)
+      Stackfile for stack to destroy #{stack_file} does not exists. Stack
+      names supplied via --name must have corresponding stack file to be
+      destroyed
+    EOL
     stack = YAML.load_file(stack_file)
     ['master', 'nodes'].each do |type|
       stack[type].each do |k, attrs|
@@ -208,7 +215,6 @@ class Puppet::Stack
         node = nodes[index]
         raise(Puppet::Error, 'Nodes are suposed to be an array of Hashes') unless node.is_a?(Hash)
         # I want to support groups of nodes that can run at the same time
-        #raise(Puppet::Error, 'Each node element should be composed of a single hash') unless node.size == 1
         node.each do |name, attrs|
           {
             'create'  => 'create',
