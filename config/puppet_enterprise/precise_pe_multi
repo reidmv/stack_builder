@@ -1,0 +1,29 @@
+---
+puppet_run_type: pe_agent
+master:
+  master_node:
+    master_type: pe_master
+    create:
+      options:
+        type: m1.small
+        image: ami-20800c10
+    install:
+      installer_payload: https://s3.amazonaws.com/pe-builds/released/2.6.1/puppet-enterprise-2.6.1-ubuntu-12.04-amd64.tar.gz
+      answers_payload: https://raw.github.com/gist/3299809/6b893459afc6f380bfb8231777abbfc06dc05dc5/answers
+
+nodes:
+  - ubuntu1204a: &ubuntu1204
+      create:
+        group: agent
+        options:
+          type: t1.micro
+          image: ami-20800c10
+      install:
+        installer_payload: https://s3.amazonaws.com/pe-builds/released/2.6.1/puppet-enterprise-2.6.1-ubuntu-12.04-amd64.tar.gz
+        answers_payload: https://raw.github.com/gist/3299812/9dea06dba93d218c61e5fa9d9e928a265c137239/answers
+
+  - ubuntu1204b: *ubuntu1204
+
+  - ubuntu1204c: *ubuntu1204
+
+  - ubuntu1204d: *ubuntu1204

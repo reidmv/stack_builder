@@ -1,0 +1,11 @@
+---
+puppet_run_type: pe_agent
+master:
+  master_node:
+    master_type: pe_master
+    create:
+      options:
+        type: m1.small
+    install:
+      installer_payload: https://s3.amazonaws.com/pe-builds/released/2.6.1/puppet-enterprise-2.6.1-ubuntu-12.04-amd64.tar.gz
+      answers_payload: https://raw.github.com/gist/3299809/6b893459afc6f380bfb8231777abbfc06dc05dc5/answers

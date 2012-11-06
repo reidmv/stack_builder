@@ -274,7 +274,7 @@ class Puppet::Stack
         # each of these can be done in parallel
         # except can our puppetmaster service simultaneous requests?
         node.each do |name, attrs|
-          if ['pe_master', 'master', 'agent', 'apply'].include?(mode)
+          if ['pe_master', 'master', 'pe_agent', 'agent', 'apply'].include?(mode)
             run_type = 'install'
           elsif mode == 'test'
             run_type = 'test'
@@ -400,6 +400,27 @@ class Puppet::Stack
   # retrieve the queue instance
   def self.queue
     @queue ||= Queue.new
+  end
+
+  def self.heredoc_safe(string)
+    # lifted from shellquote function on 2012/10/22
+    safe = '!"a-zA-Z0-9@%_+=:,./-' # Safe unescaped
+    dangerous = '`$\\'             # Unsafe without escape
+
+    if string.length != 0 and string.count(safe) == string.length
+      return string
+    elsif string.count(dangerous) == 0
+      return ('"' + string + '"')
+    elsif string.count("'") == 0
+      return ("'" + string + "'")
+    else
+      r = String.new
+      string.each_byte do |c|
+        r += "\\" if dangerous.include?(c)
+        r += c.chr
+      end
+      return r
+    end
   end
 
 end
