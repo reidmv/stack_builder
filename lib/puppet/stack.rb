@@ -119,7 +119,7 @@ class Puppet::Stack
     stacks = {}
     Dir[File.expand_path(File.join(get_stack_path, '*'))].each do |file|
       if File.file?(file)
-        stacks[File.basename(file)] = YAML.load_file(file)
+        stacks[File.basename(file)] = YAML.load_file(file) || {}
       end
     end
     stacks
